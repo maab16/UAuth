@@ -1,0 +1,88 @@
+/* Default */
+.exists {
+    border: 1px solid red !important;
+}
+
+.available {
+    border: 1px solid green !important;
+}
+
+.content {
+    padding-top: 50px;
+}
+.navbar-nav {
+    margin-left: auto;
+}
+.regisret-form {
+    margin-top: 30px;
+}
+.card {
+    background: none;
+    border: 0px;
+}
+.title{
+    background: #666;
+    border: 1px solid #666;
+    color: #fff !important;
+    text-shadow: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+.card-title {
+    margin-bottom: 0px;
+}
+.card-title a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.user-login {
+    padding: 50px 0px;
+}
+
+.register-btn,
+.login-btn {
+    border-radius: 3px !important;
+    color: #fff !important;
+    text-shadow: none !important;
+    border: 1px solid #353535 !important;
+    background: #444 !important;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#444), to(#333)) !important;
+    background: -moz-linear-gradient(0% 0% 270deg,#444, #333) !important;
+    cursor: pointer;
+}
+.login-btn {
+    background: none;
+    background-color: #f7f7f7;
+}
+.login-btn,
+.login-btn:hover {
+    text-decoration: none;
+    padding: 5px 15px;
+}
+.accordion-content {
+    margin-top: 15px;
+}
+textarea {
+    width: 100%;
+    min-height: 120px;
+}
+.gender {
+    width: 50px;
+}
+
+/* Validation */
+.validation-errors ul {
+    list-style-type: none;
+}
+
+/* Forget */
+.forget {
+    color: #fff;
+    text-decoration: none;
+    float: right;
+    display: inline-block;
+}
+.forget:hover {
+    color: #fff;
+}
