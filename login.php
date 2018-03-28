@@ -4,6 +4,11 @@ session_start();
 include_once 'vendor/autoload.php';
 
 use Blab\Libs\Session;
+use Blab\Libs\Users;
+
+$users = new Users;
+$users->loggedInUser();
+
 if(Session::exists('user')){
 	header('Location: profile.php');
 }
@@ -38,7 +43,7 @@ if(Session::exists('user')){
 		        		<label id="username">Username</label>
 		        	</div>
 		        	<div class="col-sm-8">
-		        		<input type="text" name="username" id="username" class="form-control username" autocomplete="off">
+		        		<input type="text" name="username" id="username" class="form-control username" placeholder="Enter Username"  autocomplete="off">
 		        	</div>
 		        </div>
 		        
@@ -47,7 +52,7 @@ if(Session::exists('user')){
 		        		<label id="password">Password</label>
 		        	</div>
 		        	<div class="col-sm-8">
-		        		<input type="password" name="password" id="password" class="form-control password" autocomplete="off">
+		        		<input type="password" name="password" id="password" class="form-control password" placeholder="Enter Password" autocomplete="off">
 		        	</div>
 		        </div>
 		        <div class="form-group row">
@@ -65,6 +70,12 @@ if(Session::exists('user')){
 	</section>
 	<script src="assets/js/jquery-3.3.1.min.js"></script>
 	<script src="assets/js/bootstrap.min.js"></script>
+	<script src="assets/js/custom.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('#username').val(" ");
+		});
+	</script>
 </body>
 </html>
 <?php 

@@ -26,9 +26,11 @@ class Input extends DB
 
 					if ($rule==='required' && empty($value)) {
 
-							$this->addError("{$item} is required");
+							$this->addError($item,"{$item} is required");
 
-					}else if(!empty($value)){
+					}
+
+					//if(!empty($value)){
 						
 						switch ($rule) {
 
@@ -36,7 +38,7 @@ class Input extends DB
 
 								if (strlen($value)<$rule_value) {
 									
-									$this->addError("{$item} must be minimum {$rule_value} charecters .");
+									$this->addError($item,"{$item} must be minimum {$rule_value} charecters .");
 								}
 
 								break;
@@ -46,29 +48,40 @@ class Input extends DB
 
 								if (strlen($value)>$rule_value) {
 									
-									$this->addError("{$item} must be maximum {$rule_value} charecters .");
+									$this->addError($item,"{$item} must be maximum {$rule_value} charecters .");
 								}
 
 								break;
 							case 'preg_match':
 								
-									if (!preg_match('/^.(?=.{8,})(?=.[a-z])(?=.[A-Z])(?=.[\d\W]).*$/',$value)) {
+									foreach($rule_value as $match) {
+										switch ($match) {
+											case 'number':
+												if (!preg_match('/(?=.*[\d])/',$value)) {
 
-										if (!preg_match('/(?=.*[A-Z])/',$value)) {
+													$this->addError($item,"{$item} MUST BE CONTAIN AT LEAST  1 NUMBER .");
+												}
+												break;
+											case 'capital_letter':
+												if (!preg_match('/(?=.*[A-Z])/',$value)) {
 
-											$this->addError("{$item} MUST BE CONTAIN AT LEAST 1 CAPITAL LETTER.");
+													$this->addError($item,"{$item} MUST BE CONTAIN AT LEAST 1 CAPITAL LETTER.");
 
-										}else if (!preg_match('/(?=.*[\d])/',$value)) {
+												}
+												break;
+											case 'small_letter':
+												if (!preg_match('/(?=.*[a-z])/',$value)) {
 
-											$this->addError("{$item} MUST BE CONTAIN AT LEAST  1 NUMBER .");
-										}else if (!preg_match('/(?=.*[a-z])/',$value)) {
+													$this->addError($item,"{$item} MUST BE CONTAIN AT LEAST  1 SMALL LETTER .");
+												}
+												break;
+											case 'special_charecter':
+												if (!preg_match('/(?=.*[\W])/',$value)) {
 
-											$this->addError("{$item} MUST BE CONTAIN AT LEAST  1 SMALL LETTER .");
-										}else if (!preg_match('/(?=.*[\W])/',$value)) {
-
-											$this->addError("{$item} MUST BE CONTAIN AT LEAST 1 SPECIAL CHARECTER.");
+													$this->addError($item,"{$item} MUST BE CONTAIN AT LEAST 1 SPECIAL CHARECTER.");
+												}
+												break;
 										}
-
 									}
 
 								break;
@@ -77,7 +90,7 @@ class Input extends DB
 								
 								if ($value != $source[$rule_value]) {
 									
-									$this->addError("{$item} must be same as {$rule_value}.");
+									$this->addError($item,"{$item} must be same as {$rule_value}.");
 								}
 
 								break;
@@ -88,7 +101,7 @@ class Input extends DB
 									
 									if (!filter_var($email, FILTER_VALIDATE_EMAIL)){
 
-										$this->addError("{$email} doesn't Valid.");
+										$this->addError('email',"{$email} doesn't Valid.");
 									}
 
 									$emailName = strstr($email, '@',true);
@@ -96,7 +109,7 @@ class Input extends DB
 
 									if ($userName==$emailName) {
 										
-										$this->addError("{$rule} Name and {$rule_value} doesn't same.");
+										$this->addError('email',"{$rule} Name and {$rule_value} doesn't same.");
 									}
 
 								break;
@@ -108,7 +121,7 @@ class Input extends DB
 								// 	$this->addError("{$item} already exists.");
 								// }
 
-							$exists = $this->_db->query()
+								$exists = $this->_db->query()
 									->from($rule_value)
 									->where(array('id'=>self::get('id')),'<>')
 									->andwhere(array($item=>$value),'=')
@@ -116,13 +129,13 @@ class Input extends DB
 
 								if ($exists) {
 									
-									$this->addError("{$item} already exists.");
+									$this->addError($item,"{$item} already exists.");
 								}
 
 								break;
 							
 						}
-					}
+					//}
 
 				}
 			}
@@ -135,9 +148,9 @@ class Input extends DB
 			return $this;
 		}
 
-		private function addError($error){
+		private function addError($index,$error){
 
-			$this->_errors[]=$error;
+			$this->_errors[$index][] = strtoupper($error);
 		}
 
 		public function errors(){

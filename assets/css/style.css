@@ -6,6 +6,11 @@
 .available {
     border: 1px solid green !important;
 }
+.error-list {
+    margin: 0px;
+    padding: 0px;
+}
+
 
 .content {
     padding-top: 50px;
@@ -85,4 +90,13 @@ textarea {
 }
 .forget:hover {
     color: #fff;
+}
+/* Edit */
+
+#edit {
+    margin-top: 20px;
+}
+.profile-image-container img {
+    width: 150px;
+    height: 150px;
 }

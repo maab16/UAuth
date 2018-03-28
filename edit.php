@@ -4,10 +4,17 @@ session_start();
 include_once 'vendor/autoload.php';
 use Blab\Libs\Input;
 use Blab\Libs\Session;
+use Blab\Libs\Users;
 use Blab\Libs\DB;
-if(Session::exists('user')){
-    header('Location: profile.php');
+$users = new Users;
+$users->loggedInUser();
+
+if (!Session::exists('user')) {
+    
+    header('Location: login.php');
 }
+if(Session::exists('user')):
+    $user = $users->getUser(Session::get('user'));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,7 +29,16 @@ if(Session::exists('user')){
 <body>
 <section class="register-section">
 	<div class="container">
-		<form action="App/Lib/action.php" method="post" enctype="multipart/form-data" class="regisret-form">
+		<form action="App/Lib/edit.php" method="post" enctype="multipart/form-data" class="regisret-form">
+			<div class="validation-errors">
+				<?php if(!empty($_SESSION['validation'])):?>
+					<ul>
+						<?php foreach($_SESSION['validation'] as $error):?>
+							<li class="p-3 mb-2 bg-danger text-white"><?php echo $error;?></li>
+						<?php endforeach;?>
+					</ul>
+				<?php endif;?>
+			</div>
 			<div class="form-head row">
 				<div class="col-sm-6">
 					<h3>Register an Account</h3>
@@ -47,7 +63,7 @@ if(Session::exists('user')){
                             		<label id="first_name">First Name</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<input type="text" name="first_name" class="first_name form-control " id="first_name" autocomplete="off" value="<?php echo Session::get('first_name');?>">
+                            		<input type="text" name="first_name" class="first_name form-control " id="first_name" autocomplete="off" value="<?php echo (Session::exists('first_name')) ? Session::get('first_name') : $user->first_name;?>">
                             	</div>
                             </div>
                             <div class="form-group row">
@@ -55,7 +71,7 @@ if(Session::exists('user')){
                             		<label id="last_name">Last Name</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<input type="text" name="last_name" class="last_name form-control " id="last_name" value="<?php echo Session::get('last_name');?>" autocomplete="off">
+                            		<input type="text" name="last_name" class="last_name form-control " id="last_name" value="<?php echo (Session::exists('last_name')) ? Session::get('last_name') : $user->last_name;?>" autocomplete="off">
                             	</div>
                             </div>
                             <div class="form-group row">
@@ -71,8 +87,15 @@ if(Session::exists('user')){
                             		<label id="gender">Gender</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<input type="radio" name="gender" value="male" class="gender ">Male
-                            		<input type="radio" name="gender" value="female" class="gender ">Female
+                                    <?php 
+                                        if(Session::exists('gender')){
+                                            $gender = Session::get('gender');
+                                        }else {
+                                            $gender = $user->gender;
+                                        }
+                                    ?>
+                            		<input type="radio" name="gender" value="male" class="gender" <?php echo ($gender == 'male') ? 'checked' : '';?> >Male
+                            		<input type="radio" name="gender" value="female" class="gender " <?php echo ($gender == 'female') ? 'checked' : '';?> >Female
                             	</div>
                             </div>
                             <div class="form-group row">
@@ -80,7 +103,7 @@ if(Session::exists('user')){
                             		<label id="home_address">Home Address</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<textarea class="home_address" name="home_address" id="home_address" value="<?php echo Session::get('home_address');?>"></textarea>
+                            		<textarea class="home_address" name="home_address" id="home_address" value="<?php echo (Session::exists('home_address')) ? Session::get('home_address') : $user->home_address;?>"><?php echo (Session::exists('home_address')) ? Session::get('home_address') : $user->home_address;?></textarea>
                             	</div>
                             </div>
                             <div class="form-group row">
@@ -89,12 +112,12 @@ if(Session::exists('user')){
                             	</div>
                             	<div class="col-sm-8">
                             		<select name="district" id="district" class="district">
-                            			<?php if(Session::exists('district')):?>
-                            				<option value="<?php echo Session::get('district');?>"><?php echo Session::get('district');?></option>
+                            			<?php if(Session::exists('district') || !empty($user->district)):?>
+                            				<option value="<?php echo (Session::exists('district')) ? Session::get('district') : $user->district;?>"><?php echo (Session::exists('district')) ? Session::get('district') : $user->district;?></option>
                             			<?php else:?>
                             				<option value="">Select Your District</option>
                             			<?php endif;?>
-                                        <?php 
+                            			<?php 
 
                                             $db = DB::getDBInstance();
 
@@ -129,7 +152,7 @@ if(Session::exists('user')){
                             		<label id="company_name">Company Name</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<input type="text" name="company_name" id="company_name" class="form-control company_name" placeholder="Your Company Name" value="<?php echo Session::get('company_name');?>" autocomplete="off">
+                            		<input type="text" name="company_name" id="company_name" class="form-control company_name" placeholder="Your Company Name" value="<?php echo (Session::exists('company_name')) ? Session::get('company_name') : $user->company_name;?>" autocomplete="off">
                             	</div>
                             </div>
                             <div class="form-group row">
@@ -137,9 +160,16 @@ if(Session::exists('user')){
                             		<label id="designation">Designation</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<input type="radio" name="designation" class="designation" value="Managing Director" autocomplete="off"> <span class="designation-text">Managing Director</span>
-                            		<input type="radio" name="designation" class="designation" value="Director" autocomplete="off"> <span class="designation-text">Director</span>
-                            		<input type="radio" name="designation" class="designation" value="Propritor" autocomplete="off"> <span class="designation-text">Propritor</span>
+                                     <?php 
+                                        if(Session::exists('designation')){
+                                            $designation = Session::get('designation');
+                                        }else {
+                                            $designation = $user->designation;
+                                        }
+                                    ?>
+                            		<input type="radio" name="designation" class="designation" value="Managing Director" autocomplete="off" <?php echo ($designation == 'Managing Director') ? 'checked' : '';?> > <span class="designation-text">Managing Director</span>
+                            		<input type="radio" name="designation" class="designation" value="Director" autocomplete="off" <?php echo ($designation == 'Director') ? 'checked' : '';?> > <span class="designation-text">Director</span>
+                            		<input type="radio" name="designation" class="designation" value="Propritor" autocomplete="off" <?php echo ($designation == 'Propritor') ? 'checked' : '';?> > <span class="designation-text">Propritor</span>
                             	</div>
                             </div>
                             <div class="form-group row">
@@ -147,7 +177,7 @@ if(Session::exists('user')){
                             		<label id="office_address">Office Address</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<textarea class="office_address" name="office_address" id="office_address" value="<?php echo Session::get('office_address');?>"></textarea>
+                            		<textarea class="office_address" name="office_address" id="office_address" value="<?php echo (Session::exists('office_address')) ? Session::get('office_address') : $user->office_address;?>"><?php echo (Session::exists('office_address')) ? Session::get('office_address') : $user->office_address;?></textarea>
                             	</div>
                             </div>
                             
@@ -156,7 +186,7 @@ if(Session::exists('user')){
                             		<label id="verify_id">NID/Passport/Birth Certificte Number</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<input type="text" name="verify_id" id="verify_id" class="form-control verify_id" placeholder="NID/Passport/Birth Certificte Number" value="<?php echo Session::get('verify_id');?>" autocomplete="off">
+                            		<input type="text" name="verify_id" id="verify_id" class="form-control verify_id" placeholder="NID/Passport/Birth Certificte Number" value="<?php echo (Session::exists('verify_id')) ? Session::get('verify_id') : $user->verify_id;?>" autocomplete="off">
                             	</div>
                             </div>
 
@@ -165,8 +195,7 @@ if(Session::exists('user')){
                             		<label id="tin">TIN</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<input type="number" name="tin" id="tin" class="form-control tin validation" data-type="tin_number" placeholder="TIN" value="<?php echo Session::get('tin');?>" autocomplete="off">
-                                    <span class="check-exists-feedback" data-type="tin_number"></span>
+                            		<input type="text" name="tin" id="tin" class="form-control tin" placeholder="TIN" value="<?php echo (Session::exists('tin')) ? Session::get('tin') : $user->tin;?>" autocomplete="off">
                             	</div>
                             </div>
                             
@@ -175,7 +204,7 @@ if(Session::exists('user')){
                             		<label id="trade_no">Trade Licenses No</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<input type="text" name="trade_no" id="trade_no" class="form-control trade_no" placeholder="Trade Licenses No" value="<?php echo Session::get('trade_no');?>" autocomplete="off">
+                            		<input type="text" name="trade_no" id="trade_no" class="form-control trade_no" placeholder="Trade Licenses No" value="<?php echo (Session::exists('trade_no')) ? Session::get('trade_no') : $user->trade_no;?>" autocomplete="off">
                             	</div>
                             </div>
 
@@ -191,7 +220,7 @@ if(Session::exists('user')){
                 		<label id="mobile">Mobile</label>
                 	</div>
                 	<div class="col-sm-8">
-                		<input type="text" name="mobile" id="mobile" class="form-control mobile" placeholder="Mobile" value="<?php echo Session::get('mobile');?>" autocomplete="off">
+                		<input type="text" name="mobile" id="mobile" class="form-control mobile" placeholder="Mobile" value="<?php echo (Session::exists('mobile')) ? Session::get('mobile') : $user->mobile;?>" autocomplete="off">
                 	</div>
                 </div>
                 
@@ -200,7 +229,7 @@ if(Session::exists('user')){
                 		<label id="phone_no">Phone Number</label>
                 	</div>
                 	<div class="col-sm-8">
-                		<input type="number" name="phone_no" id="phone_no" class="form-control phone_no" value="<?php echo Session::get('phone_no');?>" autocomplete="off">
+                		<input type="number" name="phone_no" id="phone_no" class="form-control phone_no" value="<?php echo (Session::exists('phone_no')) ? Session::get('phone_no') : $user->phone_no;?>" autocomplete="off">
                 	</div>
                 </div>
 
@@ -209,13 +238,12 @@ if(Session::exists('user')){
                 		<label id="email">Email Address</label>
                 	</div>
                 	<div class="col-sm-8">
-                		<input type="email" name="email" id="email" class="form-control email validation" data-type="email" autocomplete="off">
-                        <span class="check-exists-feedback" data-type="email"></span>
+                		<input type="email" name="email" id="email" class="form-control email" value="<?php echo (Session::exists('email')) ? Session::get('email') : $user->email;?>" autocomplete="off">
                 	</div>
                 </div>
 
                 <div class="form-group row">
-                    <input type="checkbox" name="hide_email" id="hide_email" class="hide_email" autocomplete="off" <?php echo (Session::get('hide_email') == 'on') ? 'checked' : '' ;?>> Hide Email From Public User
+                    <input type="checkbox" name="hide_email" id="hide_email" class="hide_email" autocomplete="off" <?php echo (Session::get('hide_email') == 'on' || $user->hide_email == 1) ? 'checked' : '' ;?>> Hide Email From Public User
                 </div>
 
                 <h3 class="title">Login Details</h3>
@@ -225,52 +253,7 @@ if(Session::exists('user')){
                 		<label id="username">Username</label>
                 	</div>
                 	<div class="col-sm-8">
-                		<input type="text" name="username" id="username" class="form-control username validation <?php echo (isset($_SESSION['validation']['password'])) ? 'exists' : ''?>" data-type="username" value="<?php echo Session::get('username');?>" autocomplete="off">
-                        <span class="check-exists-feedback" data-type="username">
-                            <?php if(isset($_SESSION['validation']['username'])):?>
-                                <ul class="error-list">
-                                    <?php foreach($_SESSION['validation']['username'] as $username_error):?>
-                                        <li class="p-3 mt-2 bg-danger text-white"><?php echo $username_error;?></li>
-                                    <?php endforeach;?>
-                                </ul>
-                            <?php endif;?>
-                        </span>
-                	</div>
-                </div>
-                
-                <div class="form-group row">
-                	<div class="col-sm-4">
-                		<label id="password">Password</label>
-                	</div>
-                	<div class="col-sm-8">
-                		<input type="password" name="password" id="password" class="form-control password validation <?php echo (isset($_SESSION['validation']['password'])) ? 'exists' : ''?>" data-type="password" autocomplete="off">
-                        <span class="check-exists-feedback" data-type="password">
-                            <?php if(isset($_SESSION['validation']['password'])):?>
-                                <ul class="error-list">
-                                    <?php foreach($_SESSION['validation']['password'] as $password_error):?>
-                                        <li class="p-3 mt-2 bg-danger text-white"><?php echo $password_error;?></li>
-                                    <?php endforeach;?>
-                                </ul>
-                            <?php endif;?>
-                        </span>
-                	</div>
-                </div>
-
-                <div class="form-group row">
-                	<div class="col-sm-4">
-                		<label id="re-password">Confirm Password</label>
-                	</div>
-                	<div class="col-sm-8">
-                		<input type="password" name="re_password" id="re_password" class="form-control validation re_password <?php echo (isset($_SESSION['validation']['re_password'])) ? 'exists' : ''?>" data-type="re_password" autocomplete="off">
-                        <span class="check-exists-feedback" data-type="re_password">
-                            <?php if(isset($_SESSION['validation']['re_password'])):?>
-                                <ul class="error-list">
-                                    <?php foreach($_SESSION['validation']['re_password'] as $re_password_error):?>
-                                        <li class="p-3 mt-2 bg-danger text-white"><?php echo $re_password_error;?></li>
-                                    <?php endforeach;?>
-                                </ul>
-                            <?php endif;?>
-                        </span>
+                		<p><?php echo $user->username;?></p>
                 	</div>
                 </div>
 
@@ -289,7 +272,7 @@ if(Session::exists('user')){
                             		<label id="facebook">Facebook Page</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<input type="text" name="facebook" id="facebook" class="form-control facebook" value="<?php echo Session::get('facebook');?>" autocomplete="off">
+                            		<input type="text" name="facebook" id="facebook" class="form-control facebook" value="<?php echo (Session::exists('facebook')) ? Session::get('facebook') : $user->facebook;?>" autocomplete="off">
                             	</div>
                             </div>
 
@@ -298,7 +281,7 @@ if(Session::exists('user')){
                             		<label id="twitter">Twitter</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<input type="text" name="twitter" id="twitter" class="form-control twitter" value="<?php echo Session::get('twitter');?>" autocomplete="off">
+                            		<input type="text" name="twitter" id="twitter" class="form-control twitter" value="<?php echo (Session::exists('twitter')) ? Session::get('twitter') : $user->twitter;?>" autocomplete="off">
                             	</div>
                             </div>
 
@@ -307,7 +290,7 @@ if(Session::exists('user')){
                             		<label id="google">Google+</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<input type="text" name="google" id="google" class="form-control google" value="<?php echo Session::get('google');?>" autocomplete="off">
+                            		<input type="text" name="google" id="google" class="form-control google" value="<?php echo (Session::exists('google')) ? Session::get('google') : $user->google;?>" autocomplete="off">
                             	</div>
                             </div>
 
@@ -316,7 +299,7 @@ if(Session::exists('user')){
                             		<label id="website">Website Site(URL)</label>
                             	</div>
                             	<div class="col-sm-8">
-                            		<input type="text" name="website" id="website" class="form-control website" value="<?php echo Session::get('website');?>" autocomplete="off">
+                            		<input type="text" name="website" id="website" class="form-control website" value="<?php echo (Session::exists('website')) ? Session::get('website') : $user->website;?>" autocomplete="off">
                             	</div>
                             </div>
 
@@ -324,16 +307,9 @@ if(Session::exists('user')){
                     </div>
                 </div>
 
-                <div class="form-group">
-                	<input type="checkbox" name="terms" id="terms_n_conditions" class="terms_n_conditions" autocomplete="off"> To complete registration, you must read and agree to our <strong>terms and conditions</strong>. This text can be custom.
-                </div>
-
                 <div class="form-group row">
                 	<div class="col-sm-6">
-                		<input type="submit" name="register" value="Register" id="register" class="register-btn" autocomplete="off">
-                	</div>
-                	<div class="col-sm-6">
-                		<a href="login.php" id="login" class="login-btn">Login</a>
+                		<input type="submit" name="edit" value="Edit" id="edit" class="register-btn" autocomplete="off">
                 	</div>
                 </div>
 
@@ -343,13 +319,9 @@ if(Session::exists('user')){
 </section>
 <script src="assets/js/jquery-3.3.1.min.js"></script>
 <script src="assets/js/bootstrap.min.js"></script>
-<script src="assets/js/inputExistsChecker.js"></script>
-<script type="text/javascript">
-    $('.validation').inputExistsChecker();
-</script>
 </body>
 </html>
-
+<?php endif;?>
 <?php 
 
 Session::delete('validation');

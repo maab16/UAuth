@@ -5,10 +5,13 @@ include_once 'vendor/autoload.php';
 
 use Blab\Libs\Users;
 use Blab\Libs\Session;
+
+$users = new Users;
+$users->loggedInUser();
+
 if(!Session::exists('user')){
 	header('Location: login.php');
 }
-$users = new Users;
 $user = $users->getUser(Session::get('user'));
 
 ?>
@@ -30,6 +33,7 @@ $user = $users->getUser(Session::get('user'));
 	  <!-- Links -->
 	  <ul class="navbar-nav">
 	    <li class="nav-item">
+	      <a class="nav-link" href="edit.php">Edit Profile</a>
 	      <a class="nav-link" href="App/Lib/logout.php">Log out</a>
 	    </li>
 	  </ul>

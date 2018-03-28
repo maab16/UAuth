@@ -15,7 +15,7 @@ if (isset($_POST['register'])) {
 
 		$_SESSION['validation'] = array('terms' => "Must be agree with terms and condition");
 
-		header('Location: ../../index.php');
+		header('Location: ../../signup.php');
 		return;
 	}
 	

@@ -108,7 +108,7 @@ $.fn.inputExistsChecker = function(){
 
 												var userFeedback = "";
 
-												if (selfValue.length<5) {
+												if (selfValue.length <= 5) {
 
 													$('.username').removeClass('available').addClass('exists');
 
@@ -116,18 +116,20 @@ $.fn.inputExistsChecker = function(){
 
 												}
 
-												if(!selfValue.charAt(0).match(/^[a-zA-Z_]+$/)) {
-													$('.username').removeClass('available').addClass('exists');
+												if (selfValue.length >= 1) {
+													if(!selfValue.charAt(0).match(/^[a-zA-Z_]+$/)) {
+														$('.username').removeClass('available').addClass('exists');
 
-													userFeedback += '<p class="p-3 mt-2 bg-danger text-white">First charecter only a-z or A-Z or _(underscore)</p>';
-												}
+														userFeedback += '<p class="p-3 mt-2 bg-danger text-white">First charecter only a-z or A-Z or _(underscore)</p>';
+													}
 
-												if(!selfValue.match(/^[0-9a-zA-Z_]+$/)){
+													if(!selfValue.match(/^[0-9a-zA-Z_]+$/)){
 
-													$('.username').removeClass('available').addClass('exists');
+														$('.username').removeClass('available').addClass('exists');
 
-													userFeedback += '<p class="p-3 mt-2 bg-danger text-white">Username contain only letters, number or underscore</p>';
-													
+														userFeedback += '<p class="p-3 mt-2 bg-danger text-white">Username contain only letters, number or underscore</p>';
+														
+													}
 												}
 
 												if(selfValue.length > 5 && selfValue.match(/^[0-9a-zA-Z_]+$/) && selfValue.charAt(0).match(/^[a-zA-Z_]+$/)){
@@ -175,9 +177,15 @@ $.fn.inputExistsChecker = function(){
 												
 											}else if (selfType == 're_password') {
 
-												$('.re_password').removeClass('exists').addClass('available');
+												if (selfValue.length < 1) {
+													$('.re_password').removeClass('available').addClass('exists');
 
-												feedback.html('<p class="p-3 -2 bg-danger text-white">PASSWORD MATCHED.</p>');
+													feedback.html('<p class="p-3 -2 bg-danger text-white">PASSWORD DOESN\'T MATCHED.</p>');
+												}else {
+													$('.re_password').removeClass('exists').addClass('available');
+
+													feedback.html('<p class="p-3 -2 bg-success text-white">PASSWORD MATCHED.</p>');
+												}
 
 											}else if(selfType == 'tin_number') {
 
